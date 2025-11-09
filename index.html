@@ -59,11 +59,11 @@
     <button onclick="logout()">Logout</button>
 
     <h3>Tambah Barang</h3>
-    <input id="kodeBarang" placeholder="Kode Barang">
-    <input id="namaBarang" placeholder="Nama Barang">
-    <input id="stokAwal" placeholder="Stok Awal" type="number">
-    <input id="hargaModal" placeholder="Harga Modal" type="number">
-    <input id="hargaJual" placeholder="Harga Jual" type="number">
+    <input id="kodeInput" placeholder="Kode Barang">
+    <input id="namaInput" placeholder="Nama Barang">
+    <input id="stokInput" placeholder="Stok Awal" type="number">
+    <input id="modalInput" placeholder="Harga Modal" type="number">
+    <input id="jualInput" placeholder="Harga Jual" type="number">
     <button onclick="tambahBarang()">Tambah Barang</button>
 
     <h3>Transaksi Penjualan</h3>
@@ -78,14 +78,14 @@
   </div>
 
   <script>
-    // === Bale Sepatu Mantan ===
+    // === Konfigurasi awal ===
     let user = { username: "kasir", password: "1234" };
     let barangList = JSON.parse(localStorage.getItem("barangList")) || [];
     let keranjang = [];
 
-    window.onload = function () {
-      let statusLogin = localStorage.getItem("isLogin");
-      if (statusLogin === "true") {
+    // === Auto login saat reload ===
+    window.onload = () => {
+      if (localStorage.getItem("isLogin") === "true") {
         showKasirPage();
       } else {
         showLoginPage();
@@ -95,8 +95,8 @@
     function showKasirPage() {
       document.getElementById("loginPage").style.display = "none";
       document.getElementById("kasirPage").style.display = "block";
-      updateDaftarBarang();
       updateTabelBarang();
+      updateDaftarBarang();
     }
 
     function showLoginPage() {
@@ -104,9 +104,11 @@
       document.getElementById("kasirPage").style.display = "none";
     }
 
+    // === Login / Logout ===
     function login() {
       let u = document.getElementById("username").value.trim();
       let p = document.getElementById("password").value.trim();
+
       if (u === user.username && p === user.password) {
         localStorage.setItem("isLogin", "true");
         showKasirPage();
@@ -120,57 +122,100 @@
       showLoginPage();
     }
 
+    // === Tambah Barang ===
     function tambahBarang() {
-      let kode = kodeBarang.value.trim();
-      let nama = namaBarang.value.trim();
-      let stokAwal = parseInt(stokAwal.value);
-      let modal = parseInt(hargaModal.value);
-      let jual = parseInt(hargaJual.value);
+      let kode = document.getElementById("kodeInput").value.trim();
+      let nama = document.getElementById("namaInput").value.trim();
+      let stok = parseInt(document.getElementById("stokInput").value);
+      let modal = parseInt(document.getElementById("modalInput").value);
+      let jual = parseInt(document.getElementById("jualInput").value);
 
-      if (!kode || !nama || isNaN(stokAwal) || isNaN(modal) || isNaN(jual)) {
+      if (!kode || !nama || isNaN(stok) || isNaN(modal) || isNaN(jual)) {
         alert("Lengkapi semua data barang!");
         return;
       }
 
       barangList.push({
-        kode, nama,
-        stokAwal,
-        hargaModal: modal,
-        hargaJual: jual,
-        stokAkhir: stokAwal,
-        laba: 0
+        kode, nama, stokAwal: stok, hargaModal: modal, hargaJual: jual,
+        stokAkhir: stok, laba: 0
       });
 
       localStorage.setItem("barangList", JSON.stringify(barangList));
       clearInput();
-      updateDaftarBarang();
       updateTabelBarang();
+      updateDaftarBarang();
     }
 
     function clearInput() {
-      kodeBarang.value = "";
-      namaBarang.value = "";
-      stokAwal.value = "";
-      hargaModal.value = "";
-      hargaJual.value = "";
+      document.getElementById("kodeInput").value = "";
+      document.getElementById("namaInput").value = "";
+      document.getElementById("stokInput").value = "";
+      document.getElementById("modalInput").value = "";
+      document.getElementById("jualInput").value = "";
     }
 
-    function updateDaftarBarang() {
-      daftarBarang.innerHTML = "";
+    // === Tabel Barang ===
+    function updateTabelBarang() {
+      let tabel = document.getElementById("tabelBarang");
+      tabel.innerHTML = `
+        <tr>
+          <th>Kode</th>
+          <th>Nama</th>
+          <th>Stok Awal</th>
+          <th>Modal</th>
+          <th>Jual</th>
+          <th>Stok Akhir</th>
+          <th>Laba</th>
+          <th>Aksi</th>
+        </tr>
+      `;
       barangList.forEach((b, i) => {
-        let option = document.createElement("option");
-        option.value = i;
-        option.text = `${b.kode} - ${b.nama} (Stok: ${b.stokAkhir})`;
-        daftarBarang.appendChild(option);
+        let row = tabel.insertRow();
+        row.insertCell(0).innerText = b.kode;
+        row.insertCell(1).innerText = b.nama;
+        row.insertCell(2).innerText = b.stokAwal;
+        row.insertCell(3).innerText = "Rp" + b.hargaModal;
+        row.insertCell(4).innerText = "Rp" + b.hargaJual;
+        row.insertCell(5).innerText = b.stokAkhir;
+        row.insertCell(6).innerText = "Rp" + b.laba;
+        let aksi = row.insertCell(7);
+        let btn = document.createElement("button");
+        btn.textContent = "Hapus";
+        btn.style.background = "red";
+        btn.style.color = "white";
+        btn.onclick = () => hapusBarang(i);
+        aksi.appendChild(btn);
       });
     }
 
-    function transaksi() {
-      let index = daftarBarang.value;
-      let jumlah = parseInt(jumlahBeli.value);
+    // === Hapus Barang ===
+    function hapusBarang(index) {
+      if (confirm("Yakin hapus barang ini?")) {
+        barangList.splice(index, 1);
+        localStorage.setItem("barangList", JSON.stringify(barangList));
+        updateTabelBarang();
+        updateDaftarBarang();
+      }
+    }
 
+    // === Dropdown Barang ===
+    function updateDaftarBarang() {
+      let daftar = document.getElementById("daftarBarang");
+      daftar.innerHTML = "";
+      barangList.forEach((b, i) => {
+        let opt = document.createElement("option");
+        opt.value = i;
+        opt.text = `${b.kode} - ${b.nama} (Stok ${b.stokAkhir})`;
+        daftar.appendChild(opt);
+      });
+    }
+
+    // === Transaksi ===
+    function transaksi() {
+      let index = document.getElementById("daftarBarang").value;
+      let jumlah = parseInt(document.getElementById("jumlahBeli").value);
       if (index === "" || isNaN(jumlah) || jumlah <= 0) {
-        alert("Pilih barang dan jumlah valid!");
+        alert("Masukkan jumlah yang benar!");
         return;
       }
 
@@ -187,65 +232,25 @@
       barang.laba += laba;
 
       keranjang.push({ nama: barang.nama, jumlah, total });
-
       localStorage.setItem("barangList", JSON.stringify(barangList));
+
       updateKeranjang();
       updateTabelBarang();
       updateDaftarBarang();
-      jumlahBeli.value = "";
-    }
-
-    function hapusBarang(index) {
-      if (confirm("Yakin ingin menghapus barang ini?")) {
-        barangList.splice(index, 1);
-        localStorage.setItem("barangList", JSON.stringify(barangList));
-        updateDaftarBarang();
-        updateTabelBarang();
-      }
+      document.getElementById("jumlahBeli").value = "";
     }
 
     function updateKeranjang() {
-      keranjangList.innerHTML = "";
+      let list = document.getElementById("keranjangList");
+      list.innerHTML = "";
       let total = 0;
-      keranjang.forEach(item => {
+      keranjang.forEach(k => {
         let li = document.createElement("li");
-        li.textContent = `${item.nama} x${item.jumlah} = Rp${item.total}`;
-        keranjangList.appendChild(li);
-        total += item.total;
+        li.textContent = `${k.nama} x${k.jumlah} = Rp${k.total}`;
+        list.appendChild(li);
+        total += k.total;
       });
-      totalHarga.innerText = `Total: Rp${total}`;
-    }
-
-    function updateTabelBarang() {
-      tabelBarang.innerHTML = `
-        <tr>
-          <th>Kode</th>
-          <th>Nama</th>
-          <th>Stok Awal</th>
-          <th>Harga Modal</th>
-          <th>Harga Jual</th>
-          <th>Stok Akhir</th>
-          <th>Laba</th>
-          <th>Aksi</th>
-        </tr>
-      `;
-      barangList.forEach((b, i) => {
-        let row = tabelBarang.insertRow();
-        row.insertCell(0).innerText = b.kode;
-        row.insertCell(1).innerText = b.nama;
-        row.insertCell(2).innerText = b.stokAwal;
-        row.insertCell(3).innerText = "Rp" + b.hargaModal;
-        row.insertCell(4).innerText = "Rp" + b.hargaJual;
-        row.insertCell(5).innerText = b.stokAkhir;
-        row.insertCell(6).innerText = "Rp" + b.laba;
-        let aksi = row.insertCell(7);
-        let btn = document.createElement("button");
-        btn.textContent = "Hapus";
-        btn.style.background = "red";
-        btn.style.color = "white";
-        btn.onclick = () => hapusBarang(i);
-        aksi.appendChild(btn);
-      });
+      document.getElementById("totalHarga").innerText = `Total: Rp${total}`;
     }
   </script>
 </body>
