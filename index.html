@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kasir Online Lengkap</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="login" id="loginPage">
+    <h2>Login Kasir</h2>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Masuk</button>
+  </div>
+
+  <div class="kasir" id="kasirPage" style="display:none;">
+    <h2>Kasir Online Lengkap</h2>
+    <button onclick="logout()">Logout</button>
+
+    <div class="input-barang">
+      <h3>Tambah Barang</h3>
+      <input type="text" id="kodeBarang" placeholder="Kode Barang">
+      <input type="text" id="namaBarang" placeholder="Nama Barang">
+      <input type="number" id="stokAwal" placeholder="Stok Awal">
+      <input type="number" id="hargaModal" placeholder="Harga Modal">
+      <input type="number" id="hargaJual" placeholder="Harga Jual">
+      <button onclick="tambahBarang()">Tambah Barang</button>
+    </div>
+
+    <h3>Transaksi</h3>
+    <select id="daftarBarang"></select>
+    <input type="number" id="jumlahBeli" placeholder="Jumlah Beli">
+    <button onclick="transaksi()">Proses Transaksi</button>
+
+    <h3>Data Barang</h3>
+    <table border="1" id="tabelBarang">
+      <tr>
+        <th>Kode</th>
+        <th>Nama</th>
+        <th>Stok Awal</th>
+        <th>Harga Modal</th>
+        <th>Harga Jual</th>
+        <th>Stok Akhir</th>
+        <th>Laba</th>
+        <th>Aksi</th>
+      </tr>
+    </table>
+
+    <h3>Keranjang</h3>
+    <ul id="keranjangList"></ul>
+    <h4 id="totalHarga">Total: Rp0</h4>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
