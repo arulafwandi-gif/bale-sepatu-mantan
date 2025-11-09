@@ -1,9 +1,12 @@
+l// === Bale Sepatu Mantan ===
+// Developer: Arul
+
 let user = { username: "kasir", password: "1234" };
 let barangList = JSON.parse(localStorage.getItem("barangList")) || [];
 let keranjang = [];
 
-// Cek status login saat halaman dibuka
-window.onload = function() {
+// ✅ Cek status login saat halaman dibuka
+window.onload = function () {
   let statusLogin = localStorage.getItem("isLogin");
   if (statusLogin === "true") {
     document.getElementById("loginPage").style.display = "none";
@@ -13,11 +16,13 @@ window.onload = function() {
   }
 };
 
+// ✅ Fungsi login
 function login() {
-  let u = document.getElementById("username").value;
-  let p = document.getElementById("password").value;
+  let u = document.getElementById("username").value.trim();
+  let p = document.getElementById("password").value.trim();
 
   if (u === user.username && p === user.password) {
+    localStorage.setItem("isLogin", "true");
     document.getElementById("loginPage").style.display = "none";
     document.getElementById("kasirPage").style.display = "block";
     updateDaftarBarang();
@@ -27,11 +32,14 @@ function login() {
   }
 }
 
+// ✅ Fungsi logout
 function logout() {
+  localStorage.removeItem("isLogin");
   document.getElementById("kasirPage").style.display = "none";
   document.getElementById("loginPage").style.display = "block";
 }
 
+// ✅ Tambah barang baru
 function tambahBarang() {
   let kode = document.getElementById("kodeBarang").value.trim();
   let nama = document.getElementById("namaBarang").value.trim();
@@ -60,6 +68,7 @@ function tambahBarang() {
   updateTabelBarang();
 }
 
+// ✅ Kosongkan input setelah tambah barang
 function clearInput() {
   document.getElementById("kodeBarang").value = "";
   document.getElementById("namaBarang").value = "";
@@ -68,6 +77,7 @@ function clearInput() {
   document.getElementById("hargaJual").value = "";
 }
 
+// ✅ Update dropdown daftar barang
 function updateDaftarBarang() {
   let select = document.getElementById("daftarBarang");
   select.innerHTML = "";
@@ -79,6 +89,7 @@ function updateDaftarBarang() {
   });
 }
 
+// ✅ Proses transaksi
 function transaksi() {
   let index = document.getElementById("daftarBarang").value;
   let jumlah = parseInt(document.getElementById("jumlahBeli").value);
@@ -110,8 +121,10 @@ function transaksi() {
   updateKeranjang();
   updateTabelBarang();
   updateDaftarBarang();
+  document.getElementById("jumlahBeli").value = "";
 }
 
+// ✅ Hapus barang dari daftar
 function hapusBarang(index) {
   if (confirm("Yakin ingin menghapus barang ini?")) {
     barangList.splice(index, 1);
@@ -121,6 +134,7 @@ function hapusBarang(index) {
   }
 }
 
+// ✅ Update tampilan keranjang
 function updateKeranjang() {
   let ul = document.getElementById("keranjangList");
   ul.innerHTML = "";
@@ -134,6 +148,7 @@ function updateKeranjang() {
   document.getElementById("totalHarga").innerText = `Total: Rp${total}`;
 }
 
+// ✅ Update tabel data barang
 function updateTabelBarang() {
   let tabel = document.getElementById("tabelBarang");
   tabel.innerHTML = `
@@ -164,6 +179,9 @@ function updateTabelBarang() {
     btn.textContent = "Hapus";
     btn.style.background = "red";
     btn.style.color = "white";
+    btn.style.border = "none";
+    btn.style.padding = "5px 10px";
+    btn.style.borderRadius = "5px";
     btn.onclick = () => hapusBarang(i);
     aksiCell.appendChild(btn);
   });
