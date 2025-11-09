@@ -2,6 +2,17 @@ let user = { username: "kasir", password: "1234" };
 let barangList = JSON.parse(localStorage.getItem("barangList")) || [];
 let keranjang = [];
 
+// Cek status login saat halaman dibuka
+window.onload = function() {
+  let statusLogin = localStorage.getItem("isLogin");
+  if (statusLogin === "true") {
+    document.getElementById("loginPage").style.display = "none";
+    document.getElementById("kasirPage").style.display = "block";
+    updateDaftarBarang();
+    updateTabelBarang();
+  }
+};
+
 function login() {
   let u = document.getElementById("username").value;
   let p = document.getElementById("password").value;
