@@ -12,14 +12,14 @@
       padding: 0;
     }
     .container {
-      max-width: 800px;
+      max-width: 900px;
       margin: 30px auto;
       background: white;
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-    h2 { text-align: center; color: #2b4d8a; }
+    h2, h3 { text-align: center; color: #2b4d8a; }
     input, select, button {
       padding: 8px;
       margin: 5px 0;
@@ -44,26 +44,11 @@
       text-align: center;
     }
     th { background: #2b4d8a; color: white; }
-
-    /* Gaya nota saat print */
-    #nota {
-      display: none;
-      font-size: 14px;
-      text-align: center;
-      margin-top: 20px;
-    }
-    #nota table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    #nota th, #nota td {
-      border: 1px solid #ddd;
-      padding: 5px;
-    }
-    #nota h3 { margin-bottom: 5px; }
+    #nota, #laporanContainer { display: none; margin-top: 20px; }
   </style>
 </head>
 <body>
+  <!-- Login -->
   <div id="loginPage" class="container">
     <h2>Login Bale Sepatu Mantan</h2>
     <input id="username" placeholder="Username">
@@ -71,6 +56,7 @@
     <button onclick="login()">Login</button>
   </div>
 
+  <!-- Kasir -->
   <div id="kasirPage" class="container" style="display:none;">
     <h2>Bale Sepatu Mantan</h2>
     <button onclick="logout()">Logout</button>
@@ -78,6 +64,7 @@
     <h3>Tambah Barang</h3>
     <input id="kodeInput" placeholder="Kode Barang">
     <input id="namaInput" placeholder="Nama Barang">
+    <input id="sizeInput" placeholder="Ukuran (contoh: 40, 41, 42)">
     <input id="stokInput" placeholder="Stok Awal" type="number">
     <input id="modalInput" placeholder="Harga Modal" type="number">
     <input id="jualInput" placeholder="Harga Jual" type="number">
@@ -93,8 +80,18 @@
 
     <h3>Data Barang</h3>
     <table id="tabelBarang"></table>
+
+    <h3>Laporan Penjualan</h3>
+    <select id="laporanFilter">
+      <option value="harian">Harian</option>
+      <option value="mingguan">Mingguan</option>
+      <option value="bulanan">Bulanan</option>
+    </select>
+    <button onclick="tampilkanLaporan()">Tampilkan Laporan</button>
+    <div id="laporanContainer"></div>
   </div>
 
+  <!-- Nota -->
   <div id="nota" class="container">
     <h3><b>Bale Sepatu Mantan</b></h3>
     <p>Nota Penjualan</p>
@@ -103,41 +100,36 @@
   </div>
 
   <script>
+    // Login sederhana
     let user = { username: "kasir", password: "1234" };
     let barangList = JSON.parse(localStorage.getItem("barangList")) || [];
+    let transaksiList = JSON.parse(localStorage.getItem("transaksiList")) || [];
     let keranjang = [];
 
     window.onload = () => {
-      if (localStorage.getItem("isLogin") === "true") {
-        showKasirPage();
-      } else {
-        showLoginPage();
-      }
+      if (localStorage.getItem("isLogin") === "true") showKasirPage();
+      else showLoginPage();
     };
 
     function showKasirPage() {
-      document.getElementById("loginPage").style.display = "none";
-      document.getElementById("kasirPage").style.display = "block";
-      document.getElementById("nota").style.display = "none";
+      loginPage.style.display = "none";
+      kasirPage.style.display = "block";
+      nota.style.display = "none";
       updateTabelBarang();
       updateDaftarBarang();
     }
 
     function showLoginPage() {
-      document.getElementById("loginPage").style.display = "block";
-      document.getElementById("kasirPage").style.display = "none";
+      loginPage.style.display = "block";
+      kasirPage.style.display = "none";
     }
 
     function login() {
-      let u = document.getElementById("username").value.trim();
-      let p = document.getElementById("password").value.trim();
-
+      let u = username.value.trim(), p = password.value.trim();
       if (u === user.username && p === user.password) {
         localStorage.setItem("isLogin", "true");
         showKasirPage();
-      } else {
-        alert("Username atau password salah!");
-      }
+      } else alert("Username / Password salah!");
     }
 
     function logout() {
@@ -146,20 +138,21 @@
     }
 
     function tambahBarang() {
-      let kode = document.getElementById("kodeInput").value.trim();
-      let nama = document.getElementById("namaInput").value.trim();
-      let stok = parseInt(document.getElementById("stokInput").value);
-      let modal = parseInt(document.getElementById("modalInput").value);
-      let jual = parseInt(document.getElementById("jualInput").value);
+      let kode = kodeInput.value.trim();
+      let nama = namaInput.value.trim();
+      let size = sizeInput.value.trim();
+      let stok = parseInt(stokInput.value);
+      let modal = parseInt(modalInput.value);
+      let jual = parseInt(jualInput.value);
 
-      if (!kode || !nama || isNaN(stok) || isNaN(modal) || isNaN(jual)) {
-        alert("Lengkapi semua data barang!");
+      if (!kode || !nama || !size || isNaN(stok) || isNaN(modal) || isNaN(jual)) {
+        alert("Lengkapi semua data!");
         return;
       }
 
       barangList.push({
-        kode, nama, stokAwal: stok, hargaModal: modal, hargaJual: jual,
-        stokAkhir: stok, laba: 0
+        kode, nama, size, stokAwal: stok, hargaModal: modal,
+        hargaJual: jual, stokAkhir: stok, laba: 0
       });
 
       localStorage.setItem("barangList", JSON.stringify(barangList));
@@ -169,48 +162,43 @@
     }
 
     function clearInput() {
-      document.getElementById("kodeInput").value = "";
-      document.getElementById("namaInput").value = "";
-      document.getElementById("stokInput").value = "";
-      document.getElementById("modalInput").value = "";
-      document.getElementById("jualInput").value = "";
+      kodeInput.value = namaInput.value = sizeInput.value = stokInput.value = modalInput.value = jualInput.value = "";
     }
 
     function updateTabelBarang() {
-      let tabel = document.getElementById("tabelBarang");
-      tabel.innerHTML = `
+      tabelBarang.innerHTML = `
         <tr>
           <th>Kode</th>
           <th>Nama</th>
-          <th>Stok Awal</th>
+          <th>Ukuran</th>
+          <th>Stok</th>
           <th>Modal</th>
           <th>Jual</th>
           <th>Stok Akhir</th>
           <th>Laba</th>
           <th>Aksi</th>
-        </tr>
-      `;
+        </tr>`;
       barangList.forEach((b, i) => {
-        let row = tabel.insertRow();
+        let row = tabelBarang.insertRow();
         row.insertCell(0).innerText = b.kode;
         row.insertCell(1).innerText = b.nama;
-        row.insertCell(2).innerText = b.stokAwal;
-        row.insertCell(3).innerText = "Rp" + b.hargaModal;
-        row.insertCell(4).innerText = "Rp" + b.hargaJual;
-        row.insertCell(5).innerText = b.stokAkhir;
-        row.insertCell(6).innerText = "Rp" + b.laba;
-        let aksi = row.insertCell(7);
+        row.insertCell(2).innerText = b.size;
+        row.insertCell(3).innerText = b.stokAwal;
+        row.insertCell(4).innerText = "Rp" + b.hargaModal;
+        row.insertCell(5).innerText = "Rp" + b.hargaJual;
+        row.insertCell(6).innerText = b.stokAkhir;
+        row.insertCell(7).innerText = "Rp" + b.laba;
+        let aksi = row.insertCell(8);
         let btn = document.createElement("button");
         btn.textContent = "Hapus";
         btn.style.background = "red";
-        btn.style.color = "white";
         btn.onclick = () => hapusBarang(i);
         aksi.appendChild(btn);
       });
     }
 
     function hapusBarang(index) {
-      if (confirm("Yakin hapus barang ini?")) {
+      if (confirm("Hapus barang ini?")) {
         barangList.splice(index, 1);
         localStorage.setItem("barangList", JSON.stringify(barangList));
         updateTabelBarang();
@@ -219,87 +207,106 @@
     }
 
     function updateDaftarBarang() {
-      let daftar = document.getElementById("daftarBarang");
-      daftar.innerHTML = "";
+      daftarBarang.innerHTML = "";
       barangList.forEach((b, i) => {
         let opt = document.createElement("option");
         opt.value = i;
-        opt.text = `${b.kode} - ${b.nama} (Stok ${b.stokAkhir})`;
-        daftar.appendChild(opt);
+        opt.text = `${b.nama} (Size ${b.size}) - Stok ${b.stokAkhir}`;
+        daftarBarang.appendChild(opt);
       });
     }
 
     function transaksi() {
-      let index = document.getElementById("daftarBarang").value;
-      let jumlah = parseInt(document.getElementById("jumlahBeli").value);
+      let index = daftarBarang.value;
+      let jumlah = parseInt(jumlahBeli.value);
       if (index === "" || isNaN(jumlah) || jumlah <= 0) {
-        alert("Masukkan jumlah yang benar!");
+        alert("Masukkan jumlah valid!");
         return;
       }
 
-      let barang = barangList[index];
-      if (jumlah > barang.stokAkhir) {
-        alert("Stok tidak cukup!");
-        return;
-      }
+      let b = barangList[index];
+      if (jumlah > b.stokAkhir) return alert("Stok tidak cukup!");
 
-      let total = barang.hargaJual * jumlah;
-      let laba = (barang.hargaJual - barang.hargaModal) * jumlah;
+      b.stokAkhir -= jumlah;
+      let total = b.hargaJual * jumlah;
+      let laba = (b.hargaJual - b.hargaModal) * jumlah;
+      b.laba += laba;
 
-      barang.stokAkhir -= jumlah;
-      barang.laba += laba;
+      let transaksiData = {
+        nama: b.nama,
+        size: b.size,
+        jumlah,
+        total,
+        tanggal: new Date().toISOString().split("T")[0]
+      };
+      transaksiList.push(transaksiData);
+      localStorage.setItem("transaksiList", JSON.stringify(transaksiList));
 
-      keranjang.push({ nama: barang.nama, jumlah, total });
+      keranjang.push(transaksiData);
       localStorage.setItem("barangList", JSON.stringify(barangList));
 
       updateKeranjang();
       updateTabelBarang();
       updateDaftarBarang();
-      document.getElementById("jumlahBeli").value = "";
+      jumlahBeli.value = "";
     }
 
     function updateKeranjang() {
-      let list = document.getElementById("keranjangList");
-      list.innerHTML = "";
+      keranjangList.innerHTML = "";
       let total = 0;
       keranjang.forEach(k => {
         let li = document.createElement("li");
-        li.textContent = `${k.nama} x${k.jumlah} = Rp${k.total}`;
-        list.appendChild(li);
+        li.textContent = `${k.nama} (Size ${k.size}) x${k.jumlah} = Rp${k.total}`;
+        keranjangList.appendChild(li);
         total += k.total;
       });
-      document.getElementById("totalHarga").innerText = `Total: Rp${total}`;
+      totalHarga.innerText = `Total: Rp${total}`;
     }
 
     function printNota() {
-      if (keranjang.length === 0) {
-        alert("Belum ada transaksi!");
+      if (keranjang.length === 0) return alert("Belum ada transaksi!");
+      nota.style.display = "block";
+      notaTable.innerHTML = `
+        <tr>
+          <th>Nama Barang</th>
+          <th>Size</th>
+          <th>Harga Jual</th>
+          <th>Satuan</th>
+        </tr>`;
+      keranjang.forEach(k => {
+        let row = notaTable.insertRow();
+        row.insertCell(0).innerText = k.nama;
+        row.insertCell(1).innerText = k.size;
+        row.insertCell(2).innerText = "Rp" + k.total;
+        row.insertCell(3).innerText = k.jumlah + " pcs";
+      });
+      window.print();
+      nota.style.display = "none";
+    }
+
+    function tampilkanLaporan() {
+      let filter = laporanFilter.value;
+      let now = new Date();
+      let hasil = transaksiList.filter(t => {
+        let tgl = new Date(t.tanggal);
+        if (filter === "harian") return tgl.toDateString() === now.toDateString();
+        if (filter === "mingguan") return (now - tgl) / (1000 * 60 * 60 * 24) <= 7;
+        if (filter === "bulanan") return tgl.getMonth() === now.getMonth() && tgl.getFullYear() === now.getFullYear();
+      });
+
+      if (hasil.length === 0) {
+        laporanContainer.innerHTML = "<p>Tidak ada data penjualan.</p>";
         return;
       }
 
-      let notaDiv = document.getElementById("nota");
-      let table = document.getElementById("notaTable");
-      notaDiv.style.display = "block";
-
-      table.innerHTML = `
-        <tr>
-          <th>Nama Barang</th>
-          <th>Harga Jual</th>
-          <th>Satuan</th>
-        </tr>
-      `;
-
-      keranjang.forEach(k => {
-        let row = table.insertRow();
-        row.insertCell(0).innerText = k.nama;
-        row.insertCell(1).innerText = "Rp" + k.total;
-        row.insertCell(2).innerText = k.jumlah + " pcs";
-      });
-
-      window.print();
-      notaDiv.style.display = "none";
+      let total = hasil.reduce((sum, x) => sum + x.total, 0);
+      laporanContainer.innerHTML = `
+        <table>
+          <tr><th>Nama Barang</th><th>Size</th><th>Jumlah</th><th>Total</th><th>Tanggal</th></tr>
+          ${hasil.map(x => `<tr><td>${x.nama}</td><td>${x.size}</td><td>${x.jumlah}</td><td>Rp${x.total}</td><td>${x.tanggal}</td></tr>`).join("")}
+        </table>
+        <p><b>Total Penjualan: Rp${total}</b></p>`;
     }
   </script>
 </body>
 </html>
-
