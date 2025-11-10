@@ -1,42 +1,63 @@
 body {
   font-family: Arial, sans-serif;
-  background: #f3f3f3;
-  text-align: center;
-  padding: 20px;
+  background: #f3f7fa;
+  margin: 0;
+  padding: 0;
 }
 
-.login, .kasir {
+nav {
+  background: #0077ff;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 20px;
+  align-items: center;
+}
+
+nav button {
   background: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.container {
   padding: 20px;
-  border-radius: 10px;
-  display: inline-block;
-  box-shadow: 0 0 10px rgba(0,0,0,0.2);
 }
 
 input, select, button {
   margin: 5px;
   padding: 8px;
-  border-radius: 5px;
+  border-radius: 6px;
   border: 1px solid #ccc;
 }
 
-button {
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-
 table {
-  margin: 10px auto;
+  width: 100%;
   border-collapse: collapse;
+  margin-top: 10px;
 }
 
 th, td {
-  padding: 8px 12px;
+  border: 1px solid #ddd;
+  padding: 8px;
 }
 
 th {
-  background: #4CAF50;
+  background: #0077ff;
   color: white;
 }
+
+.login-container {
+  text-align: center;
+  margin-top: 100px;
+}
+
+.login-container input {
+  display: block;
+  margin: 10px auto;
+  width: 200px;
+}
+
