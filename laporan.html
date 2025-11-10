@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Laporan Penjualan - Bale Sepatu Mantan</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav>
+    <h3>Bale Sepatu Mantan</h3>
+    <button onclick="window.location.href='kasir.html'">Kasir</button>
+    <button onclick="window.location.href='laporan.html'">Laporan</button>
+    <button onclick="logout()">Logout</button>
+  </nav>
+
+  <div class="container">
+    <h2>Laporan Penjualan</h2>
+    <label for="jenisLaporan">Pilih Laporan:</label>
+    <select id="jenisLaporan" onchange="tampilkanLaporan()">
+      <option value="harian">Harian</option>
+      <option value="mingguan">Mingguan</option>
+      <option value="bulanan">Bulanan</option>
+    </select>
+
+    <table id="tabelLaporan"></table>
+    <button onclick="window.print()">🖨️ Cetak Laporan</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
