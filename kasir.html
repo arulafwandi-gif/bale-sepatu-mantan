@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Kasir - Bale Sepatu Mantan</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav>
+    <h3>Bale Sepatu Mantan</h3>
+    <button onclick="window.location.href='kasir.html'">Kasir</button>
+    <button onclick="window.location.href='laporan.html'">Laporan</button>
+    <button onclick="logout()">Logout</button>
+  </nav>
+
+  <div class="container">
+    <h2>Tambah Barang</h2>
+    <input id="kodeBarang" placeholder="Kode Barang">
+    <input id="namaBarang" placeholder="Nama Barang">
+    <input id="sizeBarang" placeholder="Ukuran (Size)">
+    <input id="stokAwal" type="number" placeholder="Stok Awal">
+    <input id="hargaModal" type="number" placeholder="Harga Modal">
+    <input id="hargaJual" type="number" placeholder="Harga Jual">
+    <button onclick="tambahBarang()">Tambah Barang</button>
+
+    <h2>Transaksi</h2>
+    <select id="daftarBarang"></select>
+    <input id="jumlahBeli" type="number" placeholder="Jumlah Beli">
+    <button onclick="transaksi()">Proses</button>
+
+    <ul id="keranjangList"></ul>
+    <h3 id="totalHarga">Total: Rp0</h3>
+
+    <h2>Daftar Barang</h2>
+    <table id="tabelBarang"></table>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
